@@ -6,6 +6,8 @@ public class CalcBeam {
     private final float LIMIT_OF_DEFORMATION = 0.005f;//Предельные значения  прогиба балки по отношению к длине
     private final float LOAD_SAFETY_FACTOR = 1.35f;// Коэффициент надежности по нагрузке
 
+    private static int numBeam=1;
+
     private float lengthBeam; //Длина балки в метрах
     private float loadBeam; //Нагрузка на балку в кПа
 
@@ -15,6 +17,12 @@ public class CalcBeam {
         System.out.printf("Максимальный изгибающий момент: %.2f кН*м \n", calcBendingMoment());
         System.out.printf("Требуемый минимальный момент сопротивления: %.1f см3 \n", calcMomentOfResistance());
         System.out.printf("Требуемый минимальный момент инерции: %.1f см4 \n", calcMomentOfInertia());
+        numBeam++;
+    }
+
+
+    public static int getNumBeam() {
+        return numBeam;
     }
 
     public float getLengthBeam() {
@@ -42,27 +50,23 @@ public class CalcBeam {
         }
     }
 
-    public double calcBendingMoment() { //Расчет максимального изгибающего момента балки в кН/м
+    private double calcBendingMoment() { //Расчет максимального изгибающего момента балки в кН/м
         float lengthBeam = getLengthBeam();
         float loadBeam = getLoadBeam();
-        double maxMoment = loadBeam * Math.pow(lengthBeam, 2) / 8;
+        return loadBeam * Math.pow(lengthBeam, 2) / 8;
 
-        return maxMoment;
     }
 
-    public double calcMomentOfResistance() { //Расчет минимального требуемого момента сопротивления в см3
+    private double calcMomentOfResistance() { //Расчет минимального требуемого момента сопротивления в см3
 
-        double minMomentOfResistance = (calcBendingMoment() * 1000 / DESIGN_RESISTANCE) * 1000000;
-
-        return minMomentOfResistance;
+        return (calcBendingMoment() * 1000 / DESIGN_RESISTANCE) * 1000000;
     }
 
-    public double calcMomentOfInertia() {//Расчет минимального момента инерции в см4
+    private double calcMomentOfInertia() {//Расчет минимального момента инерции в см4
         float lengthBeam = getLengthBeam();
         float loadBeam = getLoadBeam();
-        double minMomentOfInertia = 5 * loadBeam * 1000 * Math.pow(lengthBeam, 3) / (384 * ELASTIC_MODULE * LIMIT_OF_DEFORMATION * LOAD_SAFETY_FACTOR) * 100000000;
+        return 5 * loadBeam * 1000 * Math.pow(lengthBeam, 3) / (384 * ELASTIC_MODULE * LIMIT_OF_DEFORMATION * LOAD_SAFETY_FACTOR) * 100000000;
 
-        return minMomentOfInertia;
     }
 
 
