@@ -3,22 +3,18 @@ package com.company;
 public class CalcBeam {
     private final int DESIGN_RESISTANCE = 240000000; //Расчетное сопротивление в Па
     private final long ELASTIC_MODULE = 206000000000L; //Модуль упругости в Па
-    private  final float LIMIT_OF_DEFORMATION = 0.005f;//Предельные значения  прогиба балки по отношению к длине
-    private  final float LOAD_SAFETY_FACTOR = 1.35f;// Коэффициент надежности по нагрузке
+    private final float LIMIT_OF_DEFORMATION = 0.005f;//Предельные значения  прогиба балки по отношению к длине
+    private final float LOAD_SAFETY_FACTOR = 1.35f;// Коэффициент надежности по нагрузке
 
     private float lengthBeam; //Длина балки в метрах
     private float loadBeam; //Нагрузка на балку в кПа
 
     public CalcBeam(float lengthBeam, float loadBeam) {
-        this.lengthBeam = lengthBeam;
-        this.loadBeam = loadBeam;
-        double maxMoment = calcBendingMoment(lengthBeam,loadBeam);
-        double minMomentOfResistance = calcMomentOfResistance(maxMoment);
-        double minMomentOfInertia = calcMomentOfInertia(lengthBeam,loadBeam);
-        System.out.printf("Максимальный изгибающий момент: %.2f кН*м \n",maxMoment);
-        System.out.printf("Требуемый минимальный момент сопротивления: %.1f см3 \n",minMomentOfResistance);
-        System.out.printf("Требуемый минимальный момент инерции: %.1f см4 \n",minMomentOfInertia);
-
+        setLengthBeam(lengthBeam);
+        setLoadBeam(loadBeam);
+        System.out.printf("Максимальный изгибающий момент: %.2f кН*м \n", calcBendingMoment());
+        System.out.printf("Требуемый минимальный момент сопротивления: %.1f см3 \n", calcMomentOfResistance());
+        System.out.printf("Требуемый минимальный момент инерции: %.1f см4 \n", calcMomentOfInertia());
     }
 
     public float getLengthBeam() {
@@ -38,6 +34,7 @@ public class CalcBeam {
     }
 
     public void setLoadBeam(float loadBeam) {
+        this.loadBeam = 0;
         if (loadBeam != 0) {
             this.loadBeam = loadBeam;
         } else {
@@ -45,23 +42,28 @@ public class CalcBeam {
         }
     }
 
-    private double calcBendingMoment(float lengthBeam, float loadbeam) { //Расчет максимального изгибающего момента балки в кН/м
-        this.lengthBeam = lengthBeam;
-        this.loadBeam = loadbeam;
-        double maxMoment = loadbeam * Math.pow(lengthBeam, 2) / 8;
+    public double calcBendingMoment() { //Расчет максимального изгибающего момента балки в кН/м
+        float lengthBeam = getLengthBeam();
+        float loadBeam = getLoadBeam();
+        double maxMoment = loadBeam * Math.pow(lengthBeam, 2) / 8;
+
         return maxMoment;
     }
 
-    private double calcMomentOfResistance(double maxMoment) { //Расчет минимального требуемого момента сопротивления в см3
-        double minMomentOfResistance = (maxMoment * 1000 / DESIGN_RESISTANCE) * 1000000;
+    public double calcMomentOfResistance() { //Расчет минимального требуемого момента сопротивления в см3
+
+        double minMomentOfResistance = (calcBendingMoment() * 1000 / DESIGN_RESISTANCE) * 1000000;
+
         return minMomentOfResistance;
     }
 
-    private double calcMomentOfInertia(float lengthBeam, float loadBeam) {//Расчет минимального момента инерции в см4
-        double minMomentOfInertia = 5*loadBeam*1000*Math.pow(lengthBeam,3)/(384*ELASTIC_MODULE*LIMIT_OF_DEFORMATION*LOAD_SAFETY_FACTOR)*100000000;
-    return minMomentOfInertia;
-    }
+    public double calcMomentOfInertia() {//Расчет минимального момента инерции в см4
+        float lengthBeam = getLengthBeam();
+        float loadBeam = getLoadBeam();
+        double minMomentOfInertia = 5 * loadBeam * 1000 * Math.pow(lengthBeam, 3) / (384 * ELASTIC_MODULE * LIMIT_OF_DEFORMATION * LOAD_SAFETY_FACTOR) * 100000000;
 
+        return minMomentOfInertia;
+    }
 
 
 }
